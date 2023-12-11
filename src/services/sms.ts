@@ -21,7 +21,7 @@ smsRouter.post('/inbound', (req: Request, res: Response) => {
 
 smsRouter.get('/outbound', (req: Request, res: Response) => {
     console.log("--- sms sent")
-    sendMessage(exampleSendTo, "Outbound", [exampleMediaUrl]).catch(error => console.error("Error sending SMS:", error));
+    sendMessage(exampleSendTo, `Outbound ${exampleMediaUrl}`).catch(error => console.error("Error sending SMS:", error));
     res.redirect('/');
 });
 
