@@ -1,4 +1,4 @@
-import { Twilio, twiml} from "twilio";
+import { Twilio, twiml } from "twilio";
 import express, { Request, Response } from 'express';
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -6,6 +6,8 @@ const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
 const client = new Twilio(accountSid, authToken);
 
 export const smsRouter = express.Router()
+
+smsRouter.use(express.urlencoded({ extended: false }));
 
 smsRouter.post('/inbound', (req: Request, res: Response) => {
     const message = req.body.Body;
