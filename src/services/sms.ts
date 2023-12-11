@@ -11,13 +11,13 @@ smsRouter.get('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved sms")
     console.log(`-- body: ${req.body}`)
-
+    sendSMS(req.body)
     res.type('text/xml').send(twimlResponse.toString());
 });
 
 smsRouter.get('/outbound', (req: Request, res: Response) => {
     console.log("--- sms sent")
-    sendSMS()
+    sendSMS("outbound")
     res.redirect('/');
 });
 
@@ -30,14 +30,14 @@ smsRouter.get('/inbound/fail', (req: Request, res: Response) => {
 
 
 
-function sendSMS() {
+function sendSMS(text:string) {
 
     if (accountSid && authToken && twilioNumber) {
         client.messages
             .create({
                 from: twilioNumber,
                 to: "+16475807443",
-                body: "You just sent an SMS from TypeScript using Twilio!",
+                body: text,
             })
             .then((message) => console.log(message.sid));
     } else {
