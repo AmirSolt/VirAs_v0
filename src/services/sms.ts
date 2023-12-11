@@ -10,11 +10,11 @@ export const smsRouter = express.Router()
 smsRouter.use(express.urlencoded({ extended: false }));
 
 smsRouter.post('/inbound', (req: Request, res: Response) => {
-    const message = req.body.Body;
+    // const message = req.body.Body;
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved sms")
-    console.log(`-- body: ${message}`)
-    sendSMS(message).catch(error => console.error("Error sending SMS:", error));
+    console.log(`-- body: ${req}`)
+    sendSMS(req.body.Body).catch(error => console.error("Error sending SMS:", error));
     res.type('text/xml').send(twimlResponse.toString());
 });
 
