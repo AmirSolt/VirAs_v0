@@ -12,8 +12,8 @@ app.get('/', (req: Request, res: Response) => {
 import { sendSMS } from './services/messaging';
 
 app.get('/send', (req: Request, res: Response) => {
-    // sendSMS()
-    console.log("Send activated")
+    sendSMS()
+    // console.log("Send activated")
     res.redirect('/');
 });
 
