@@ -16,6 +16,7 @@ smsRouter.get('/inbound', (req: Request, res: Response) => {
 });
 
 smsRouter.get('/outbound', (req: Request, res: Response) => {
+    console.log("--- sms sent")
     sendSMS()
     res.redirect('/');
 });
