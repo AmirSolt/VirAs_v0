@@ -10,7 +10,7 @@ smsRouter.use(express.urlencoded({ extended: false }));
 
 
 const exampleSendTo = "+16475807443"
-const exampleMediaUrl = "https://m.media-amazon.com/images/I/61rowppY2TL._AC_SL1500_.jpg"
+const exampleMediaUrl = "https://www.amazon.ca/NVIDIA-SHIELD-Android-Streaming-Performance/dp/B07YP9FBMM/?_encoding=UTF8&pd_rd_w=Etgh8&content-id=amzn1.sym.2fd36d35-e0d1-4258-ba0c-e42eba5f6561%3Aamzn1.symc.e5c80209-769f-4ade-a325-2eaec14b8e0e&pf_rd_p=2fd36d35-e0d1-4258-ba0c-e42eba5f6561&pf_rd_r=XDQN1V1RR4BN0J1WKXXV&pd_rd_wg=1rq9L&pd_rd_r=953faec6-ca17-41c6-9803-68cf8cac4d3c&ref_=pd_gw_ci_mcx_mr_hp_atf_m&th=1"
 
 smsRouter.post('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
