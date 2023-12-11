@@ -7,7 +7,7 @@ const client = new Twilio(accountSid, authToken);
 
 export const smsRouter = express.Router()
 
-smsRouter.get('/inbound', (req: Request, res: Response) => {
+smsRouter.post('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved sms")
     console.log(`-- body: ${req.body}`)
@@ -21,7 +21,7 @@ smsRouter.get('/outbound', (req: Request, res: Response) => {
     res.redirect('/');
 });
 
-smsRouter.get('/inbound/fail', (req: Request, res: Response) => {
+smsRouter.post('/inbound/fail', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("---  SMS failed")
     res.type('text/xml').send(twimlResponse.toString());
