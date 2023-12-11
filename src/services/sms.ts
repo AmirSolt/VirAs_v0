@@ -6,40 +6,45 @@ const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
 const client = new Twilio(accountSid, authToken);
 
 export const smsRouter = express.Router()
-
 smsRouter.use(express.urlencoded({ extended: false }));
 
+
+const exampleSendTo = "+16475807443"
+const exampleMediaUrl = "https://m.media-amazon.com/images/I/61rowppY2TL._AC_SL1500_.jpg"
+
 smsRouter.post('/inbound', (req: Request, res: Response) => {
-    // const message = req.body.Body;
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved sms")
-    console.log(`-- body: ${req}`)
-    sendSMS(req.body.Body).catch(error => console.error("Error sending SMS:", error));
+    sendMessage(exampleSendTo, req.body.Body).catch(error => console.error("Error sending SMS:", error));
     res.type('text/xml').send(twimlResponse.toString());
 });
 
 smsRouter.get('/outbound', (req: Request, res: Response) => {
     console.log("--- sms sent")
-    sendSMS("Outbound").catch(error => console.error("Error sending SMS:", error));
+    sendMessage(exampleSendTo, "Outbound", [exampleMediaUrl]).catch(error => console.error("Error sending SMS:", error));
     res.redirect('/');
 });
 
 smsRouter.post('/inbound/fail', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("---  SMS failed")
+    console.log(`request: ${req}`)
+    console.log("-------------------")
+
     res.type('text/xml').send(twimlResponse.toString());
 });
 
 
 
 
-async function sendSMS(text:string): Promise<void> {
+async function sendMessage(sendTo:string, text:string, mediaUrl:string[]|undefined=undefined): Promise<void> {
     if (accountSid && authToken && twilioNumber) {
         try {
             const message = await client.messages.create({
                 from: twilioNumber,
-                to: "+16475807443",
+                to: sendTo,
                 body: text,
+                mediaUrl:mediaUrl,
             });
             console.log("SMS sent with SID:", message.sid);
         } catch (error) {
