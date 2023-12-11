@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import {smsRouter} from './services/sms'
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,13 +10,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 
-import { sendSMS } from './services/messaging';
-
-app.get('/send', (req: Request, res: Response) => {
-    sendSMS()
-    // console.log("Send activated")
-    res.redirect('/');
-});
+app.use('/sms', smsRouter)
 
 
 app.listen(port, () => {
