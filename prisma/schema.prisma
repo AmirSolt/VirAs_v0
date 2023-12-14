@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// npx prisma migrate dev --name init 
+
 
 generator client {
   provider = "prisma-client-js"
@@ -10,9 +11,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Profile {
+  id              String    @unique @default(uuid())
+  created_at      DateTime  @default(now())
+  fb_messenger_id String    @unique
+  country         String?
+  Message         Message[]
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+   @@index(fields: [fb_messenger_id])
+}
+
+model Message {
+  id          BigInt     @id @default(autoincrement())
+  created_at  DateTime   @default(now())
+  body        String
+  profile     Profile    @relation(fields: [profile_id], references: [id])
+  profile_id  String
+  message_dir MessageDir
+}
+
+enum MessageDir {
+  INBOUND
+  OUTBOUND
 }
