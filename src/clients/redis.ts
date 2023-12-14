@@ -13,3 +13,4 @@ if (!redisurl) {
 }
 
 export const redis = new Redis(redisurl);
+

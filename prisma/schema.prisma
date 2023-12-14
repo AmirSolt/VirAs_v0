@@ -1,6 +1,4 @@
-
 // npx prisma migrate dev --name init 
-
 
 generator client {
   provider = "prisma-client-js"
@@ -11,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Config {
+  id ConfigType @id
+
+  categorizer_system_message String
+  categorizer_temperature    Int
+}
+
 model Profile {
   id              String    @unique @default(uuid())
   created_at      DateTime  @default(now())
@@ -18,19 +23,31 @@ model Profile {
   country         String?
   Message         Message[]
 
-   @@index(fields: [fb_messenger_id])
+  @@index(fields: [fb_messenger_id], type: Hash)
 }
 
 model Message {
-  id          BigInt     @id @default(autoincrement())
-  created_at  DateTime   @default(now())
+  id          BigInt      @id @default(autoincrement())
+  created_at  DateTime    @default(now())
   body        String
-  profile     Profile    @relation(fields: [profile_id], references: [id])
+  profile     Profile     @relation(fields: [profile_id], references: [id])
   profile_id  String
   message_dir MessageDir
+  role        MessageRole
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  TOOL
 }
 
 enum MessageDir {
   INBOUND
   OUTBOUND
+}
+
+enum ConfigType {
+  FREE
+  TIER_ONE
 }

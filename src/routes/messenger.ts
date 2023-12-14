@@ -1,7 +1,7 @@
 import { client, twilioPageId } from "../clients/twilio";
 import { twiml } from "twilio";
 import express, { Request, Response } from 'express';
-
+import { submitMessage } from "../services/communications";
 
 export const messengerRouter = express.Router()
 messengerRouter.use(express.urlencoded({ extended: false }));
@@ -11,7 +11,12 @@ messengerRouter.use(express.urlencoded({ extended: false }));
 messengerRouter.post('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved fb messenger")
-    sendMessage(req.body.From, req.body.Body).catch(error => console.error("Error sending fb messenger:", error));
+    const body = req.body.Body
+    const fromId = req.body.From
+    // call categorizer
+    // sendMessage(req.body.From, req.body.Body).catch(error => console.error("Error sending fb messenger:", error));
+    
+    
     res.type('text/xml').send(twimlResponse.toString());
 });
 
@@ -27,22 +32,13 @@ messengerRouter.post('/inbound/fail', (req: Request, res: Response) => {
     console.log(`request: ${req}`)
     console.log("-------------------")
 
+    // submit a message and say sorry
+    submitMessage()
+
     res.type('text/xml').send(twimlResponse.toString());
 });
 
 
 
 
-async function sendMessage(sendTo:string, text:string): Promise<void> {
-    try {
-        const message = await client.messages.create({
-            from: `messenger:${twilioPageId}`,
-            body: text,
-            to: sendTo,
-        });
-        console.log("fb messenger sent with SID:", message.sid);
-    } catch (error) {
-        console.error("Failed to send fb messenger:", error);
-    }
-}
 
