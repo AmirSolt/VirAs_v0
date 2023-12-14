@@ -11,7 +11,7 @@ messengerRouter.use(express.urlencoded({ extended: false }));
 messengerRouter.post('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved fb messenger")
-    console.log(JSON.stringify(req))
+    console.log("--- from:",req.body.From)
     sendMessage(req.body.From, req.body.Body).catch(error => console.error("Error sending fb messenger:", error));
     res.type('text/xml').send(twimlResponse.toString());
 });
@@ -38,7 +38,7 @@ async function sendMessage(sendTo:string, text:string): Promise<void> {
     if (twilioPageId) {
         try {
             const message = await client.messages.create({
-                from: `messenger:${twilioPageId}`,
+                from: `messenger:{${twilioPageId}}`,
                 body: text,
                 to: sendTo,
             });
@@ -52,3 +52,43 @@ async function sendMessage(sendTo:string, text:string): Promise<void> {
 }
 
 
+
+
+// ErrorUrl
+// https://verasv0-production.up.railway.app/messenger/inbound
+
+// SmsMessageSid
+// SMb40d8af203fd99fb6b1c0f5a4031d773
+
+// ErrorCode
+// 11200
+
+// NumMedia
+// 0
+
+// SmsSid
+// SMb40d8af203fd99fb6b1c0f5a4031d773
+
+// SmsStatus
+// received
+
+// Body
+// Test
+
+// To
+// messenger:141026145770877
+
+// NumSegments
+// 1
+
+// MessageSid
+// SMb40d8af203fd99fb6b1c0f5a4031d773
+
+// AccountSid
+// ACbaf50037ec306da5c331a3ff260a5873
+
+// From
+// messenger:6817426058355533
+
+// ApiVersion
+// 2010-04-01
