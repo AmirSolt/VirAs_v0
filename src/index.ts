@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import {smsRouter} from './services/sms'
+import {messengerRouter} from './services/messenger'
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,7 +10,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 
-app.use('/sms', smsRouter)
+app.use('/messenger', messengerRouter)
 
 
 app.listen(port, () => {
