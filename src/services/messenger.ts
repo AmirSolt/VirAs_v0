@@ -11,6 +11,7 @@ messengerRouter.use(express.urlencoded({ extended: false }));
 messengerRouter.post('/inbound', (req: Request, res: Response) => {
     const twimlResponse = new twiml.MessagingResponse();
     console.log("--- recieved fb messenger")
+    console.log(JSON.stringify(req))
     sendMessage(req.body.From, req.body.Body).catch(error => console.error("Error sending fb messenger:", error));
     res.type('text/xml').send(twimlResponse.toString());
 });
