@@ -25,13 +25,15 @@ messengerRouter.post('/inbound', async (req: Request, res: Response) => {
 
     if(profile == null){
         profile = await createProfile(fromFBId)
-        submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
-        submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Welcome to here, Disclaimer, Instruction")
-        submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Country")
+        await submitMessage(profile, MessageRole.NON_AI, MessageDir.INBOUND, body)
+        await submitMessage(profile, MessageRole.NON_AI, MessageDir.OUTBOUND, "Welcome to here, Disclaimer, Instruction")
+        // submitMessage(profile, MessageRole.NON_AI, MessageDir.OUTBOUND, "Country")
         return res.type('text/xml').send(twimlResponse.toString());
     }
     
-    submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
+    await submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
+
+    console.log("--- user message saved")
 
     if(profile._count.messages>0 && profile._count.messages % disclaimerReminderMessageCount == 0){
         submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Disclaimer")

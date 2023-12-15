@@ -30,17 +30,18 @@ model Message {
   id              String    @id @default(uuid())
   created_at     DateTime    @default(now())
   content        String?
-  tool_call_id   String?
-  tool_call_name String?
-  profile        Profile     @relation(fields: [profile_id], references: [id])
+  profile        Profile     @relation(fields: [profile_id], references: [id], onDelete: Cascade)
   profile_id     String
   message_dir    MessageDir
   role           MessageRole
+  extra_json       Json?
 
   @@index(fields: [created_at], type: BTree)
 }
 
 enum MessageRole {
+  NON_AI
+  SYSTEM
   USER
   ASSISTANT
   TOOL

@@ -8,11 +8,10 @@ export async function submitMessage(
     role:MessageRole,
     messageDir:MessageDir,
     content: string | null | undefined = undefined,
-    tool_call_id: string | null | undefined = undefined,
-    tool_call_name: string | null | undefined = undefined):Promise<MProfile> {
+    extra_json: any|undefined|null=undefined):Promise<MProfile> {
 
     
-    if(messageDir===MessageDir.OUTBOUND && content){
+    if(messageDir===MessageDir.OUTBOUND && content && role!==MessageRole.TOOL){
         sendMessage(profile.fb_messenger_id, content)
     }
 
@@ -21,8 +20,7 @@ export async function submitMessage(
         role,
         messageDir,
         content,
-        tool_call_id,
-        tool_call_name,
+        extra_json
     )
 }
 

@@ -16,7 +16,6 @@ app.use(async (req: Request, res: Response, next) => {
         throw new Error('Config could not be found')
     }else{
         app.locals.config = config
-        console.log("app.locals.config",app.locals.config)
     }
 
     return next()
@@ -35,3 +34,9 @@ app.use('/messenger', messengerRouter)
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+
+
+// 1. when assistant runs tool it does not log it correctly
+// { role: 'assistant', content: '' },
+
+// 2. you can ad intro role to message so filter out messages sent by default

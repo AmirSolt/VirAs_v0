@@ -8,7 +8,19 @@ export const toolsObjects: ChatCompletionTool[] = [
         type: "function",
         function: {
             name: "tool1",
-            description: "To test tool function, only call if user asks to test the tool function",
+            description: "Run when user asks you to run tool1",
+            parameters: {
+                type: "object",
+                properties: {
+                },
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "tool2",
+            description: "Run when user asks you to run tool2",
             parameters: {
                 type: "object",
                 properties: {
@@ -34,17 +46,46 @@ export const toolsObjects: ChatCompletionTool[] = [
 ]
 
 export const toolsFunc: Record<string, any> = {
-    tool1: async (profile:MProfile) => {
+    tool1: async (profile:MProfile, tool_call_id:string) => {
 
-        console.log("Tool 1 was called")
+        const content = "Tool1 is working"
+
+        console.log(content)
+
+        // await submitMessage(
+        //     profile,
+        //     MessageRole.TOOL,
+        //     MessageDir.OUTBOUND,
+        //     content,
+        //     tool_call_id,
+        // );
 
         submitMessage(
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            "Tool1 is working",
-            null,
-            null,
+            content,
+        );
+    },
+    tool2: async (profile:MProfile, tool_call_id:string) => {
+
+        const content = "Tool2 is working"
+
+        console.log(content)
+
+        // await submitMessage(
+        //     profile,
+        //     MessageRole.TOOL,
+        //     MessageDir.OUTBOUND,
+        //     content,
+        //     tool_call_id,
+        // );
+
+        submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            content,
         )
     }
 };

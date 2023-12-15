@@ -15,8 +15,8 @@ export async function createMessage(
     role:MessageRole,
     messageDir:MessageDir,
     content: string | null | undefined = undefined,
-    tool_call_id: string | null | undefined = undefined,
-    tool_call_name: string | null | undefined = undefined){
+    extra_json:any|undefined|null,
+    ){
 
     const message = await prisma.message.create({
         data:{
@@ -24,8 +24,7 @@ export async function createMessage(
             message_dir:messageDir,
             content,
             role,
-            tool_call_id,
-            tool_call_name,
+            extra_json
         }
     }) 
 
@@ -107,9 +106,8 @@ export async function getConfig() {
 
     if (res==null) {
         const configValue = await prisma.config.findFirst({ where: { id: ConfigType.FREE } })
-        console.log(">>>configValue",configValue)
         if(configValue){
-            redis.set(ConfigType.FREE, JSON.stringify(configValue), "EX", defaultRedisExpiration)
+            redis.set(ConfigType.FREE, JSON.stringify(configValue))
             config = configValue
         }
     } else {
