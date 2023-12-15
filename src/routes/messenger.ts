@@ -2,13 +2,16 @@ import { client, twilioPageId } from "../clients/twilio";
 import { twiml } from "twilio";
 import express, { Request, Response } from 'express';
 import { submitMessage } from "../services/communications";
-import { getProfile } from "../services/db";
+import { createProfile, getProfile } from "../services/db";
 import { callCompletion } from "../services/assistance";
+import { ConfigType, Message, MessageDir, MessageRole, Config, Profile } from "@prisma/client";
+
+// remind user of disclaimer after x messages
+const disclaimerReminderMessageCount = 200
 
 
 export const messengerRouter = express.Router()
 messengerRouter.use(express.urlencoded({ extended: false }));
-
 
 
 messengerRouter.post('/inbound', async (req: Request, res: Response) => {
@@ -16,24 +19,26 @@ messengerRouter.post('/inbound', async (req: Request, res: Response) => {
     console.log("--- recieved fb messenger")
     const body = req.body.Body
     const fromFBId = req.body.From
-    // call categorizer
     // sendMessage(req.body.From, req.body.Body).catch(error => console.error("Error sending fb messenger:", error));
     
     let profile = await getProfile(fromFBId)
 
     if(profile == null){
-        // create profile
-        // send welcome messages
+        profile = await createProfile(fromFBId)
+        submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
+        submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Welcome to here, Disclaimer, Instruction")
+        submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Country")
         return res.type('text/xml').send(twimlResponse.toString());
     }
+    
+    submitMessage(profile, MessageRole.USER, MessageDir.INBOUND, body)
 
-    if(profile._count.messages>0 && profile._count.messages % 100 == 0){
-        // send disclaimer
+    if(profile._count.messages>0 && profile._count.messages % disclaimerReminderMessageCount == 0){
+        submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Disclaimer")
     }
 
-    callCompletion(req.app.locals.config, profile)
+    // callCompletion(req.app.locals.config, profile)
 
-    
     res.type('text/xml').send(twimlResponse.toString());
 });
 

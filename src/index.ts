@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 import { getConfig } from './services/db';
 
-app.use(async (req: Request, res: Response) => {
+app.use(async (req: Request, res: Response, next) => {
 
     const config = await getConfig()
 
@@ -16,7 +16,10 @@ app.use(async (req: Request, res: Response) => {
         throw new Error('Config could not be found')
     }else{
         app.locals.config = config
+        console.log("app.locals.config",app.locals.config)
     }
+
+    return next()
 })
     
 

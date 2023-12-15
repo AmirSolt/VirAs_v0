@@ -1,13 +1,35 @@
 import { client, twilioPageId } from "../clients/twilio";
+import { createMessage } from "./db";
+import { ConfigType, Message, MessageDir, MessageRole, Config, Profile } from "@prisma/client";
+import { MProfile } from "../clients/prismaExtra";
 
+export async function submitMessage(
+    profile: MProfile,
+    role:MessageRole,
+    messageDir:MessageDir,
+    content: string | undefined = undefined,
+    tool_call_id: string | undefined = undefined,
+    tool_call_name: string | undefined = undefined):Promise<MProfile> {
 
-export async function submitMessage(sendTo:string, text:string){
-    // save to db
-    // if has content send to user
+    
+    if(messageDir===MessageDir.OUTBOUND && content){
+        sendMessage(profile.fb_messenger_id, content)
+    }
+
+    return await createMessage(
+        profile,
+        role,
+        messageDir,
+        content,
+        tool_call_id,
+        tool_call_name,
+    )
 }
 
 
-async function sendMessage(sendTo:string, text:string): Promise<void> {
+async function sendMessage(sendTo: string, text: string): Promise<void> {
+
+
     try {
         const message = await client.messages.create({
             from: `messenger:${twilioPageId}`,

@@ -13,27 +13,31 @@ model Config {
   id ConfigType @id
 
   categorizer_system_message String
-  categorizer_temperature    Int
+  categorizer_temperature    Float
 }
 
 model Profile {
-  id              String    @unique @default(uuid())
+  id              String    @id @default(uuid())
   created_at      DateTime  @default(now())
   fb_messenger_id String    @unique
   country         String?
-  messages         Message[]
+  messages        Message[]
 
   @@index(fields: [fb_messenger_id], type: Hash)
 }
 
 model Message {
-  id              BigInt      @id @default(autoincrement())
-  created_at      DateTime    @default(now())
-  body            String
-  profile         Profile     @relation(fields: [profile_id], references: [id])
-  profile_id      String
-  message_dir     MessageDir
-  role            MessageRole
+  id              String    @id @default(uuid())
+  created_at     DateTime    @default(now())
+  content        String?
+  tool_call_id   String?
+  tool_call_name String?
+  profile        Profile     @relation(fields: [profile_id], references: [id])
+  profile_id     String
+  message_dir    MessageDir
+  role           MessageRole
+
+  @@index(fields: [created_at], type: BTree)
 }
 
 enum MessageRole {

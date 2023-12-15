@@ -1,14 +1,14 @@
-import { Config, Message, MessageDir, Profile } from "@prisma/client";
+import { Config, Message, MessageDir, MessageRole, Profile } from "@prisma/client";
 import { openai } from "../clients/openai";
-import { ChatCompletionMessageParam } from "openai/resources";
+import { ChatCompletionMessageParam, ChatCompletionToolMessageParam } from "openai/resources";
 import { toolsFunc, toolsObjects } from "./tools";
+import { MProfile } from "../clients/prismaExtra";
 
 
 
 
 
-
-export async function callCompletion(config: Config, profile:(Profile & {messages: Message[];} & {_count:{messages:number}})):Promise<void> {
+export async function callCompletion(config: Config, profile:MProfile):Promise<void> {
 
     const systemMessage: ChatCompletionMessageParam = {
         content: config.categorizer_system_message,
@@ -16,9 +16,18 @@ export async function callCompletion(config: Config, profile:(Profile & {message
     }
 
     const chatMessages = profile.messages.map(m => {
+
+        if(m.role == MessageRole.TOOL){
+            return {
+                role: m.role.toLowerCase(),
+                content: m.content,
+                tool_call_id:m.tool_call_id
+            } as ChatCompletionToolMessageParam
+        }
+
         return {
             role: m.role.toLowerCase(),
-            content: m.body
+            content: m.content,
         } as ChatCompletionMessageParam
     })
 
