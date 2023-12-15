@@ -14,9 +14,9 @@ export async function createMessage(
     profile: MProfile,
     role:MessageRole,
     messageDir:MessageDir,
-    content: string | undefined = undefined,
-    tool_call_id: string | undefined = undefined,
-    tool_call_name: string | undefined = undefined){
+    content: string | null | undefined = undefined,
+    tool_call_id: string | null | undefined = undefined,
+    tool_call_name: string | null | undefined = undefined){
 
     const message = await prisma.message.create({
         data:{

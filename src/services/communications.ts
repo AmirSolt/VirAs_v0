@@ -7,9 +7,9 @@ export async function submitMessage(
     profile: MProfile,
     role:MessageRole,
     messageDir:MessageDir,
-    content: string | undefined = undefined,
-    tool_call_id: string | undefined = undefined,
-    tool_call_name: string | undefined = undefined):Promise<MProfile> {
+    content: string | null | undefined = undefined,
+    tool_call_id: string | null | undefined = undefined,
+    tool_call_name: string | null | undefined = undefined):Promise<MProfile> {
 
     
     if(messageDir===MessageDir.OUTBOUND && content){

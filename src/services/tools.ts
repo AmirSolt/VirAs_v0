@@ -1,4 +1,7 @@
 import { ChatCompletionTool } from "openai/resources";
+import { submitMessage } from "./communications";
+import { MProfile } from "../clients/prismaExtra";
+import { MessageDir, MessageRole } from "@prisma/client";
 
 export const toolsObjects: ChatCompletionTool[] = [
     {
@@ -9,7 +12,7 @@ export const toolsObjects: ChatCompletionTool[] = [
             parameters: {
                 type: "object",
                 properties: {
-                }
+                },
             }
         }
     },
@@ -31,7 +34,17 @@ export const toolsObjects: ChatCompletionTool[] = [
 ]
 
 export const toolsFunc: Record<string, any> = {
-    tool1: async () => {
-        // submit message if there's one
+    tool1: async (profile:MProfile) => {
+
+        console.log("Tool 1 was called")
+
+        submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            "Tool1 is working",
+            null,
+            null,
+        )
     }
 };

@@ -3,6 +3,7 @@ import { openai } from "../clients/openai";
 import { ChatCompletionMessageParam, ChatCompletionToolMessageParam } from "openai/resources";
 import { toolsFunc, toolsObjects } from "./tools";
 import { MProfile } from "../clients/prismaExtra";
+import { submitMessage } from "./communications";
 
 
 
@@ -45,27 +46,36 @@ export async function callCompletion(config: Config, profile:MProfile):Promise<v
 
     const responseMessage = chatCompletion.choices[0].message
 
-    // push responseMessage to db
-    // send message if has body
 
-    const toolCalls = responseMessage.tool_calls;
-    if (toolCalls == null) {
-        return
-    } else {
-        Promise.allSettled(
-            toolCalls.map(toolCall => {
+    if (responseMessage.tool_calls) {
+        await Promise.allSettled(
+            responseMessage.tool_calls.map(toolCall => {
                 return async () => {
 
-                    // function call
-                    // push responseMessage to db
-                    // send message if has body
+                    submitMessage(
+                        profile,
+                        MessageRole.ASSISTANT,
+                        MessageDir.OUTBOUND,
+                        responseMessage.content,
+                        toolCall.id,
+                        toolCall.function.name,
+                    )
 
                     const functionName = toolCall.function.name;
                     const functionToCall = toolsFunc[functionName];
                     // const functionArgs = JSON.parse(toolCall.function.arguments);
-                    functionToCall();
+                    await functionToCall(profile);
                 }
             })
+        )
+    }else{
+        submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            responseMessage.content,
+            null,
+            null,
         )
     }
 }

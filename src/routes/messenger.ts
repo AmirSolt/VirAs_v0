@@ -37,7 +37,7 @@ messengerRouter.post('/inbound', async (req: Request, res: Response) => {
         submitMessage(profile, MessageRole.ASSISTANT, MessageDir.OUTBOUND, "Disclaimer")
     }
 
-    // callCompletion(req.app.locals.config, profile)
+    callCompletion(req.app.locals.config, profile)
 
     res.type('text/xml').send(twimlResponse.toString());
 });
