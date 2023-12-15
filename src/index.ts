@@ -22,8 +22,6 @@ app.use(async (req: Request, res: Response, next) => {
 })
     
 
-
-
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello, TypeScript Express!');
 });
