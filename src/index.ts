@@ -6,23 +6,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 
-import { ConfigType, Message, Config } from "@prisma/client";
-import { redis } from "./clients/redis";
-import { prisma } from './clients/prisma';
-
+import { getConfig } from './services/db';
 
 app.use(async (req: Request, res: Response) => {
 
-    // Fetch and cache 'Config', and save to locals
-    await redis.get(ConfigType.FREE, async (err, res)=>{
-        if (err) {
-            const config = await prisma.config.findFirst({where:{id:ConfigType.FREE}})
-            redis.set(ConfigType.FREE, JSON.stringify(config))
-            app.locals.config = config
-        } else {
-            app.locals.config = res
-        }
-    })
+    const config = await getConfig()
+
+    if(config==null){
+        throw new Error('Config could not be found')
+    }else{
+        app.locals.config = config
+    }
 })
     
 

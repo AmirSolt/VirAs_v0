@@ -21,19 +21,19 @@ model Profile {
   created_at      DateTime  @default(now())
   fb_messenger_id String    @unique
   country         String?
-  Message         Message[]
+  messages         Message[]
 
   @@index(fields: [fb_messenger_id], type: Hash)
 }
 
 model Message {
-  id          BigInt      @id @default(autoincrement())
-  created_at  DateTime    @default(now())
-  body        String
-  profile     Profile     @relation(fields: [profile_id], references: [id])
-  profile_id  String
-  message_dir MessageDir
-  role        MessageRole
+  id              BigInt      @id @default(autoincrement())
+  created_at      DateTime    @default(now())
+  body            String
+  profile         Profile     @relation(fields: [profile_id], references: [id])
+  profile_id      String
+  message_dir     MessageDir
+  role            MessageRole
 }
 
 enum MessageRole {

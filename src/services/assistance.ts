@@ -1,39 +1,21 @@
-import { Config, Message, MessageDir } from "@prisma/client";
+import { Config, Message, MessageDir, Profile } from "@prisma/client";
 import { openai } from "../clients/openai";
-import { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources";
+import { ChatCompletionMessageParam } from "openai/resources";
+import { toolsFunc, toolsObjects } from "./tools";
 
 
 
 
-const tools: ChatCompletionTool[] = [{
-    type: "function",
-    function: {
-        name: "getCurrentWeather",
-        description: "Get the weather in location",
-        parameters: {
-            type: "object",
-            properties: {
-                location: { type: "string", description: "The city and state e.g. San Francisco, CA" },
-                unit: { type: "string", enum: ["c", "f"] }
-            },
-            required: ["location"]
-        }
-    }
-}]
-
-const availableFunctions: Record<string, any> = {
-    get_current_weather: () => { },
-};
 
 
-export async function getCompletion(config: Config, messages: Message[]) {
+export async function callCompletion(config: Config, profile:(Profile & {messages: Message[];} & {_count:{messages:number}})):Promise<void> {
 
     const systemMessage: ChatCompletionMessageParam = {
         content: config.categorizer_system_message,
         role: "system"
     }
 
-    const chatMessages = messages.map(m => {
+    const chatMessages = profile.messages.map(m => {
         return {
             role: m.role.toLowerCase(),
             content: m.body
@@ -48,7 +30,7 @@ export async function getCompletion(config: Config, messages: Message[]) {
         stream: false,
         temperature: config.categorizer_temperature,
         tool_choice: "auto",
-        tools
+        tools:toolsObjects
     });
 
 
@@ -57,7 +39,6 @@ export async function getCompletion(config: Config, messages: Message[]) {
     // push responseMessage to db
     // send message if has body
 
-
     const toolCalls = responseMessage.tool_calls;
     if (toolCalls == null) {
         return
@@ -65,21 +46,15 @@ export async function getCompletion(config: Config, messages: Message[]) {
         Promise.allSettled(
             toolCalls.map(toolCall => {
                 return async () => {
-                    const functionName = toolCall.function.name;
-                    const functionToCall = availableFunctions[functionName];
-                    const functionArgs = JSON.parse(toolCall.function.arguments);
-                    const functionResponse = functionToCall(
-                        functionArgs.location,
-                        functionArgs.unit
-                    );
 
                     // function call
                     // push responseMessage to db
                     // send message if has body
 
-                    // function response
-                    // push responseMessage to db
-                    // send message if has body
+                    const functionName = toolCall.function.name;
+                    const functionToCall = toolsFunc[functionName];
+                    // const functionArgs = JSON.parse(toolCall.function.arguments);
+                    functionToCall();
                 }
             })
         )
