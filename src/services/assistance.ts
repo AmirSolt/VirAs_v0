@@ -94,7 +94,7 @@ export async function callCompletion(config: Config, profile: MProfile): Promise
                 const functionToCall = toolsFunc[functionName];
                 // const functionArgs = JSON.parse(toolCall.function.arguments);
                 // await functionToCall(profile, ...functionArgs);
-                await functionToCall(profile, toolCall.id);
+                await functionToCall(profile);
 
             })())
         );

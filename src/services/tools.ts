@@ -46,19 +46,12 @@ export const toolsObjects: ChatCompletionTool[] = [
 ]
 
 export const toolsFunc: Record<string, any> = {
-    tool1: async (profile:MProfile, tool_call_id:string) => {
+    tool1: async (profile:MProfile) => {
 
         const content = "Tool1 is working"
 
         console.log(content)
 
-        // await submitMessage(
-        //     profile,
-        //     MessageRole.TOOL,
-        //     MessageDir.OUTBOUND,
-        //     content,
-        //     tool_call_id,
-        // );
 
         submitMessage(
             profile,
@@ -67,19 +60,11 @@ export const toolsFunc: Record<string, any> = {
             content,
         );
     },
-    tool2: async (profile:MProfile, tool_call_id:string) => {
+    tool2: async (profile:MProfile) => {
 
         const content = "Tool2 is working"
 
         console.log(content)
-
-        // await submitMessage(
-        //     profile,
-        //     MessageRole.TOOL,
-        //     MessageDir.OUTBOUND,
-        //     content,
-        //     tool_call_id,
-        // );
 
         submitMessage(
             profile,
