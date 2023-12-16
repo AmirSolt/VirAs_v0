@@ -2,7 +2,7 @@ import { Config, Message, MessageDir, MessageRole, Profile } from "@prisma/clien
 import { openai } from "../clients/openai";
 import { ChatCompletionMessageParam, ChatCompletionToolMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionMessageToolCall } from "openai/resources";
 import { toolsFunc, toolsObjects } from "./tools";
-import { MProfile } from "../clients/prismaExtra";
+import { MProfile } from "../clients/customTypes";
 import { submitMessage } from "./communications";
 
 

@@ -1,76 +1,125 @@
 import { ChatCompletionTool } from "openai/resources";
-import { submitMessage } from "./communications";
-import { MProfile } from "../clients/prismaExtra";
+import { submitMessage, submitTicket } from "./communications";
+import { MProfile, SearchResponse } from "../clients/customTypes";
 import { MessageDir, MessageRole } from "@prisma/client";
+import { updateProfileCountry } from "./db";
+import { amazon } from "../clients/amazon";
 
 export const toolsObjects: ChatCompletionTool[] = [
     {
         type: "function",
         function: {
-            name: "tool1",
-            description: "Run when user asks you to run tool1",
+            name: "country",
+            description: "Store user's country for better search results.",
             parameters: {
                 type: "object",
                 properties: {
+                    countryCode: { type: "string", description: "Two letter country code in ISO 3166-1 alpha-2. Convert to two letter code if needed." },
                 },
+                required: ["countryCode"]
             }
         }
     },
     {
         type: "function",
         function: {
-            name: "tool2",
-            description: "Run when user asks you to run tool2",
+            name: "search",
+            description: "Searches amazon products and returns product quality/price analytics.",
             parameters: {
                 type: "object",
                 properties: {
+                    searchTerm: { type: "string", description: "The search term." },
                 },
+                required: ["searchTerm"]
             }
         }
     },
-    // {
-    //     type: "function",
-    //     function: {
-    //         name: "getCurrentWeather",
-    //         description: "Get the weather in location",
-    //         parameters: {
-    //             type: "object",
-    //             properties: {
-    //                 location: { type: "string", description: "The city and state e.g. San Francisco, CA" },
-    //                 unit: { type: "string", enum: ["c", "f"] }
-    //             },
-    //             required: ["location"]
-    //         }
-    //     }
-    // }
+    {
+        type: "function",
+        function: {
+            name: "report",
+            description: "Reports a problem directly to the developer.",
+            parameters: {
+                type: "object",
+                properties: {
+                    reportContent: { type: "string", description: "The content of the reported problem." },
+                },
+                required: ["reportContent"]
+            }
+        }
+    },
 ]
 
 export const toolsFunc: Record<string, any> = {
-    tool1: async (profile:MProfile) => {
-
-        const content = "Tool1 is working"
-
-        console.log(content)
-
-
+    country: async (profile:MProfile, countryCode:string) => {
+        profile = await updateProfileCountry(
+            profile,
+            countryCode
+        )
         submitMessage(
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            content,
+            `Country set to ${countryCode}`,
         );
     },
-    tool2: async (profile:MProfile) => {
-
-        const content = "Tool2 is working"
-
-        console.log(content)
-
-        submitMessage(
+    search: async (profile:MProfile, searchTerm:string) => {
+        await submitMessage(
             profile,
             MessageRole.ASSISTANT,
             MessageDir.OUTBOUND,
-            content,
+            "searching...",
+        );
+  
+        
+        const domain = amazon.countryToDomain(profile.country_code)
+        const searchResponse:SearchResponse|null = await amazon.search(domain, searchTerm)
+        if(searchResponse==null){
+            await submitMessage(
+                profile,
+                MessageRole.ASSISTANT,
+                MessageDir.OUTBOUND,
+                "Failed to get search results",
+            );
+            return
+        }
+        const links = searchResponse.search_results.map(sr=>sr.link)
+        await submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            `Found ${links?.length} links. Links: ${links?.join("\n")}`,
+        );
+        // search amazon api
+        // analytics returns
+        // create image
+
+        
+        // send image
+        // send message with products
+
+        // create a search object
+        
+
+        // submitMessage(
+        //     profile,
+        //     MessageRole.ASSISTANT,
+        //     MessageDir.OUTBOUND,
+        //     content,
+        // );
+    },
+    report: async (profile:MProfile, reportContent:string) => {
+
+
+        await submitTicket(
+            profile,
+            reportContent,
+        )
+        await submitMessage(
+            profile,
+            MessageRole.ASSISTANT,
+            MessageDir.OUTBOUND,
+            "A human will review your report shortly.",
         )
     }
 };

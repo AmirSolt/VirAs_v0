@@ -20,9 +20,10 @@ model Profile {
   id              String    @id @default(uuid())
   created_at      DateTime  @default(now())
   fb_messenger_id String    @unique
-  country         String?
+  country_code         String?
   messages        Message[]
   tickets         Ticket[]
+  searches        Search[]
 
   @@index(fields: [fb_messenger_id], type: Hash)
 }
@@ -36,6 +37,7 @@ model Message {
   message_dir MessageDir
   role        MessageRole
   extra_json  Json?
+  image_urls  String[]
 
   @@index(fields: [created_at], type: BTree)
 }
@@ -46,6 +48,14 @@ model Ticket {
   content    String
   profile    Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
   profile_id String
+}
+
+model Search {
+  id          String   @id @default(uuid())
+  search_term String
+  profile     Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id  String
+  asins       String[]
 }
 
 enum MessageRole {
@@ -64,4 +74,10 @@ enum MessageDir {
 enum ConfigType {
   FREE
   TIER_ONE
+}
+
+enum Country {
+  US
+  CA
+  UK
 }

@@ -1,7 +1,7 @@
 import { client, twilioPageId, TWILIO_PHONE_NUMBER, ADMIN_NUMBER } from "../clients/twilio";
 import { createMessage, createTicket } from "./db";
 import { ConfigType, Message, MessageDir, MessageRole, Config, Profile, Ticket } from "@prisma/client";
-import { MProfile } from "../clients/prismaExtra";
+import { MProfile } from "../clients/customTypes";
 
 
 const messageCharLimit = 400
@@ -12,11 +12,13 @@ export async function submitMessage(
     role:MessageRole,
     messageDir:MessageDir,
     content: string | null | undefined = undefined,
-    extra_json: any|undefined|null=undefined):Promise<MProfile> {
+    extra_json: any|undefined|null=undefined,
+    image_urls: string[]=[]
+    ):Promise<MProfile> {
 
     if(messageDir===MessageDir.INBOUND && content && content.length >= messageCharLimit && role!==MessageRole.TOOL){
         const newContent = `Sorry, but your message exceeds ${messageCharLimit} characters`
-        sendMessage(profile.fb_messenger_id, newContent)
+        await sendMessage(profile.fb_messenger_id, newContent)
         return await createMessage(
             profile,
             role,
@@ -28,7 +30,7 @@ export async function submitMessage(
 
 
     if(messageDir===MessageDir.OUTBOUND && content && role!==MessageRole.TOOL){
-        sendMessage(profile.fb_messenger_id, content.substring(0, messageCharLimit))
+        await sendMessage(profile.fb_messenger_id, content.substring(0, messageCharLimit), image_urls)
     }
 
     return await createMessage(
@@ -36,7 +38,8 @@ export async function submitMessage(
         role,
         messageDir,
         content?.substring(0, messageCharLimit),
-        extra_json
+        extra_json,
+        image_urls
     )
 }
 
@@ -46,7 +49,7 @@ export async function submitTicket(
     profile: MProfile,
     content: string):Promise<Ticket> {
 
-    sendSMS(ADMIN_NUMBER, "--- Ticket: \n"+content)
+    await sendSMS(ADMIN_NUMBER, "--- Ticket: \n"+content)
 
     return await createTicket(profile, content)
 }
@@ -57,7 +60,7 @@ export async function submitTicket(
 
 
 
-async function sendMessage(sendTo: string, text: string): Promise<void> {
+async function sendMessage(sendTo: string, text: string, image_urls:string[]=[]): Promise<void> {
 
 
     try {
@@ -65,6 +68,7 @@ async function sendMessage(sendTo: string, text: string): Promise<void> {
             from: `messenger:${twilioPageId}`,
             body: text,
             to: sendTo,
+            mediaUrl:image_urls
         });
         console.log("fb messenger sent with SID:", message.sid);
     } catch (error) {

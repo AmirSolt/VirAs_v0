@@ -1,17 +1,40 @@
 import { prisma } from "../clients/prisma";
 import { ConfigType, Message, MessageDir, MessageRole, Config, Profile } from "@prisma/client";
 import { redis } from "../clients/redis";
-import type { MProfile } from "../clients/prismaExtra";
+import type { MProfile } from "../clients/customTypes";
 
 // expire redis records after x
 const defaultRedisExpiration = 60*60
 
 // fetch message history with profile
-const lastMessagesFetched = 10
+const lastMessagesLoadedin = 10
 
 
+export async function updateProfileCountry(profile:MProfile, countryCode:string){
+    await prisma.profile.update({
+        where:{id:profile.id},
+        data:{
+            country_code:countryCode
+        }
+    })
+    profile.country_code = countryCode
+    redis.set(profile.fb_messenger_id, JSON.stringify(profile), "EX", defaultRedisExpiration)
+    return profile
+}
 
-
+export async function createSearch(
+    profile:MProfile,
+    search_term:string,
+    asins:string[],
+){
+    return await prisma.search.create({
+        data:{
+            profile_id:profile.id,
+            search_term:search_term,
+            asins:asins,
+        },
+    })
+}
 
 
 export async function createTicket(
@@ -37,6 +60,7 @@ export async function createMessage(
     messageDir:MessageDir,
     content: string | null | undefined = undefined,
     extra_json:any|undefined|null,
+    image_urls:string[]=[]
     ){
 
     const message = await prisma.message.create({
@@ -45,7 +69,8 @@ export async function createMessage(
             message_dir:messageDir,
             content,
             role,
-            extra_json
+            extra_json,
+            image_urls
         }
     }) 
 
@@ -65,7 +90,7 @@ export async function createProfile(fbMessengerId: string){
         },
         include: {
             messages: {
-                take: -lastMessagesFetched,
+                take: -lastMessagesLoadedin,
                 orderBy: {
                     created_at: 'asc',
                 },
@@ -95,7 +120,7 @@ export async function getProfile(fbMessengerId: string) {
             },
             include: {
                 messages: {
-                    take: -lastMessagesFetched,
+                    take: -lastMessagesLoadedin,
                     orderBy: {
                         created_at: 'desc',
                     },
