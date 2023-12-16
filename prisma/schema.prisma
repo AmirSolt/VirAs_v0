@@ -22,21 +22,30 @@ model Profile {
   fb_messenger_id String    @unique
   country         String?
   messages        Message[]
+  tickets         Ticket[]
 
   @@index(fields: [fb_messenger_id], type: Hash)
 }
 
 model Message {
-  id              String    @id @default(uuid())
-  created_at     DateTime    @default(now())
-  content        String?
-  profile        Profile     @relation(fields: [profile_id], references: [id], onDelete: Cascade)
-  profile_id     String
-  message_dir    MessageDir
-  role           MessageRole
-  extra_json       Json?
+  id          String      @id @default(uuid())
+  created_at  DateTime    @default(now())
+  content     String?
+  profile     Profile     @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id  String
+  message_dir MessageDir
+  role        MessageRole
+  extra_json  Json?
 
   @@index(fields: [created_at], type: BTree)
+}
+
+model Ticket {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  content    String
+  profile    Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  profile_id String
 }
 
 enum MessageRole {

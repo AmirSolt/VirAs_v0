@@ -10,6 +10,27 @@ const defaultRedisExpiration = 60*60
 const lastMessagesFetched = 10
 
 
+
+
+
+
+export async function createTicket(
+    profile: MProfile,
+    content: string 
+    ){
+
+    const ticket = await prisma.ticket.create({
+        data:{
+            profile_id:profile.id,
+            content,
+        }
+    }) 
+
+    return ticket
+}
+
+
+
 export async function createMessage(
     profile: MProfile,
     role:MessageRole,

@@ -9,13 +9,22 @@ if(process.env.TWILIO_ACCOUNT_SID == null){
 if(process.env.TWILIO_AUTH_TOKEN == null){
     throw new Error('missing TWILIO_AUTH_TOKEN');
 }
-
 if(process.env.TWILIO_MESSENGER_PAGE_ID == null){
     throw new Error('missing TWILIO_MESSENGER_PAGE_ID');
 }
+if(process.env.TWILIO_PHONE_NUMBER == null){
+    throw new Error('missing TWILIO_PHONE_NUMBER');
+}
+if(process.env.ADMIN_NUMBER == null){
+    throw new Error('missing ADMIN_NUMBER');
+}
 
+
+export const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER
+export const ADMIN_NUMBER = process.env.ADMIN_NUMBER
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 export const twilioPageId = process.env.TWILIO_MESSENGER_PAGE_ID;
 export const client = new Twilio(accountSid, authToken);
+
