@@ -53,7 +53,7 @@ interface Carousel {
     total_items: number;
 }
 
-interface SearchResult {
+export interface SearchResult {
     position: number;
     title: string;
     asin: string;

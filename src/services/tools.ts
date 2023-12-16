@@ -2,8 +2,9 @@ import { ChatCompletionTool } from "openai/resources";
 import { submitMessage, submitTicket } from "./communications";
 import { MProfile, SearchResponse } from "../clients/customTypes";
 import { MessageDir, MessageRole } from "@prisma/client";
-import { updateProfileCountry } from "./db";
+import { createSearch, updateProfileCountry } from "./db";
 import { amazon } from "../clients/amazon";
+import { scoreSearchResults } from "./productAnalytics";
 
 export const toolsObjects: ChatCompletionTool[] = [
     {
@@ -83,30 +84,31 @@ export const toolsFunc: Record<string, any> = {
             );
             return
         }
-        const links = searchResponse.search_results.map(sr=>sr.link)
-        await submitMessage(
+
+        createSearch(
             profile,
-            MessageRole.ASSISTANT,
-            MessageDir.OUTBOUND,
-            `Found ${links?.length} links. Links: ${links?.join("\n")}`,
-        );
-        // search amazon api
-        // analytics returns
-        // create image
+            searchTerm,
+            searchResponse.search_results.map(sr=>sr.asin)
+        )
 
-        
-        // send image
-        // send message with products
-
-        // create a search object
-        
+        const scoredSearchResults = scoreSearchResults(searchResponse.search_results)
+        // use api to generate graph image
 
         // submitMessage(
         //     profile,
         //     MessageRole.ASSISTANT,
         //     MessageDir.OUTBOUND,
-        //     content,
+        //     null,
+        //     []
+        // )
+        // await submitMessage(
+        //     profile,
+        //     MessageRole.ASSISTANT,
+        //     MessageDir.OUTBOUND,
+        //     `Top 3 links. Links: ${links?.join("\n")}`,
         // );
+
+    
     },
     report: async (profile:MProfile, reportContent:string) => {
 
